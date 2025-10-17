@@ -25,7 +25,7 @@ steps:
       AWS_SESSION_TOKEN:
         from_secret: AWS_SESSION_TOKEN
     commands:
-      - aws s3 cp public/ s3://bucket-resto-s3/ --recursive --cache-control max-age=86400
+      - aws s3 cp public/ s3://drone-restaurant-s3/ --recursive --cache-control max-age=86400
 
     when:
       event: push
