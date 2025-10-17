@@ -6,7 +6,6 @@ variables:
   S3_BUCKET: drone-restaurant-s3
   AWS_REGION: us-east-1
 
-# Le pipeline ne se déclenche que sur un push vers la branche 'main'
 trigger:
   branch:
     - main
@@ -14,47 +13,30 @@ trigger:
     - push
 
 steps:
-  # --- ÉTAPE 1: Construire le site Hugo ---
-  # Cette étape utilise une image Docker contenant Hugo pour générer les fichiers statiques.
   - name: build-hugo-site
-    image: klakegg/hugo:ext-alpine # Une image Hugo populaire et à jour
-    # On définit l'URL de base en utilisant les variables ci-dessus.
-    # C'est cette ligne qui corrige les liens CSS/JS !
+    image: klakegg/hugo:ext-alpine
     environment:
       HUGO_BASEURL: http://${S3_BUCKET}.s3-website.${AWS_REGION}.amazonaws.com
     commands:
-      # La commande 'hugo' génère le site dans le dossier './public'
       - hugo
-
-  # --- ÉTAPE 2: Déployer les fichiers sur S3 ---
-  # Cette étape prend le contenu du dossier './public' et le synchronise avec votre bucket.
   - name: deploy-to-s3
     image: plugins/s3
-    # Ne s'exécute que si l'étape 'build-hugo-site' a réussi
     depends_on:
       - build-hugo-site
     settings:
-      # Les clés sont lues depuis les secrets que vous avez configurés dans Drone
       aws_access_key_id:
         from_secret: aws_access_key_id
       aws_secret_access_key:
         from_secret: aws_secret_access_key
       aws_session_token:
         from_secret: aws_session_token
-
-      # Le plugin utilise les variables globales pour savoir où déployer
       region: ${AWS_REGION}
       bucket: ${S3_BUCKET}
-
-      # Le dossier source est celui généré par Hugo
       source: public/
-      # Supprime les anciens fichiers du bucket qui n'existent plus
       delete: true
 
-  # --- ÉTAPE 3: Afficher l'URL du site ---
-  # Une petite étape pratique pour voir l'URL finale directement dans les logs de Drone.
   - name: display-url
-    image: alpine # Une image très légère juste pour lancer une commande
+    image: alpine 
     depends_on:
       - deploy-to-s3
     environment:
