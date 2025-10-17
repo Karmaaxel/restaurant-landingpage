@@ -18,7 +18,7 @@ steps:
     environment:
       HUGO_BASEURL: http://${S3_BUCKET}.s3-website.${AWS_REGION}.amazonaws.com
     commands:
-      - hugo
+      - hugo --baseURL ${HUGO_BASEURL}
   - name: deploy-to-s3
     image: plugins/s3
     depends_on:
@@ -34,14 +34,8 @@ steps:
       bucket: ${S3_BUCKET}
       source: public/
       delete: true
-
-  - name: display-url
-    image: alpine 
-    depends_on:
-      - deploy-to-s3
-    environment:
-      SITE_URL: http://${S3_BUCKET}.s3-website.${AWS_REGION}.amazonaws.com
-    commands:
-      - echo "=================================================="
-      - echo " Site déployé avec succès !"
-      - echo "=================================================="
+    when:
+          event: push
+          branch:
+            - main
+            - master
