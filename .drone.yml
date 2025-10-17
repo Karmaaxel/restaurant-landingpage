@@ -1,10 +1,10 @@
+s3_config: &s3_config
+  S3_BUCKET: drone-restaurant-s3
+  AWS_REGION: us-east-1
+
 kind: pipeline
 type: docker
 name: Déploiement du site Hugo sur S3
-
-variables:
-  S3_BUCKET: drone-restaurant-s3
-  AWS_REGION: us-east-1
 
 trigger:
   branch:
@@ -16,6 +16,7 @@ steps:
   - name: build-hugo-site
     image: klakegg/hugo:ext-alpine
     environment:
+      <<: *s3_config
       HUGO_BASEURL: http://${S3_BUCKET}.s3-website.${AWS_REGION}.amazonaws.com
     commands:
       - hugo --baseURL ${HUGO_BASEURL}
@@ -34,8 +35,5 @@ steps:
       bucket: ${S3_BUCKET}
       source: public/
       delete: true
-    when:
-          event: push
-          branch:
-            - main
-            - master
+    environment:
+      <<: *s3_config
