@@ -52,17 +52,3 @@ steps:
       source: public/
       # Supprime les anciens fichiers du bucket qui n'existent plus
       delete: true
-
-  # --- ÉTAPE 3: Afficher l'URL du site ---
-  # Une petite étape pratique pour voir l'URL finale directement dans les logs de Drone.
-  - name: display-url
-    image: alpine # Une image très légère juste pour lancer une commande
-    depends_on:
-      - deploy-to-s3
-    environment:
-      SITE_URL: http://${S3_BUCKET}.s3-website.${AWS_REGION}.amazonaws.com
-    commands:
-      - echo "=================================================="
-      - echo " Site déployé avec succès !"
-      - echo "URL : ${SITE_URL}"
-      - echo "=================================================="
