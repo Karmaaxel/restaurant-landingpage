@@ -2,8 +2,6 @@ kind: pipeline
 type: docker
 name: Déploiement du site Hugo sur S3
 
-# --- Variables globales pour ce pipeline ---
-# Modifiez ces deux variables pour correspondre à votre configuration S3.
 variables:
   S3_BUCKET: drone-restaurant-s3
   AWS_REGION: us-east-1
